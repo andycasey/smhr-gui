@@ -1,2 +1,2 @@
 matplotlib
-pyside
+PySide2
