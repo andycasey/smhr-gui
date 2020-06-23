@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Functionality to use matplotlib figures in PyQt5 GUIs. """
+""" Functionality to use matplotlib figures in PySide2 GUIs. """
 
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
@@ -21,9 +21,9 @@ matplotlib.rc_file(os.path.join(os.path.dirname(__file__), "matplotlibrc"))
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PySide2.QtWidgets import *
+from PySide2.QtCore import *
+from PySide2.QtGui import *
 
 DOUBLE_CLICK_INTERVAL = 0.1 # MAGIC HACK
 
@@ -88,10 +88,10 @@ class MPLWidget(FigureCanvas):
 
         # State for shift. (Antimasks)
         self.shift_key_pressed = False
-        
+
         # State for space. (Pan)
-        self.space_key_pressed = False 
-       
+        self.space_key_pressed = False
+
 
     def _focus(self, event):
         """ Set the focus of the canvas. """
@@ -107,7 +107,7 @@ class MPLWidget(FigureCanvas):
             if event.inaxes in [ax]:
                 return i,ax
         raise RuntimeError("Cannot find correct axis")
-    
+
 
     def enable_interactive_zoom(self):
 
@@ -140,7 +140,7 @@ class MPLWidget(FigureCanvas):
         :param event:
             A matplotlib event.
         """
-        
+
         if event.button != 3 or event.inaxes is None:
             return None
 
@@ -158,7 +158,7 @@ class MPLWidget(FigureCanvas):
             self.mpl_connect("motion_notify_event", self._update_interactive_zoom)
         )
         return None
-    
+
 
     def _update_interactive_zoom(self, event):
         """
@@ -215,19 +215,19 @@ class MPLWidget(FigureCanvas):
             return None
 
         self._interactive_zoom_history.setdefault(
-            self._interactive_zoom_axis_index, 
+            self._interactive_zoom_axis_index,
             [(event.inaxes.get_xlim(), event.inaxes.get_ylim())])
 
-        # If this is a double-click, go to the previous zoom in history. 
+        # If this is a double-click, go to the previous zoom in history.
         signal_time, signal_cid = self._interactive_zoom_box_signal
         if time.time() - signal_time < self.__right_double_click_interval:
-            
+
             if len(self._interactive_zoom_history[self._interactive_zoom_axis_index]) > 1:
                 xlim, ylim = self._interactive_zoom_history[self._interactive_zoom_axis_index].pop(-1)
             else:
                 xlim, ylim = self._interactive_zoom_history[self._interactive_zoom_axis_index][-1]
 
-        else:        
+        else:
             # Set the zoom.
             xlim = np.sort([self._interactive_zoom_initial_bounds[0], event.xdata])
             ylim = np.sort([self._interactive_zoom_initial_bounds[1], event.ydata])
@@ -269,7 +269,7 @@ class MPLWidget(FigureCanvas):
 
         elif axis_index in self._interactive_zoom_history:
             del self._interactive_zoom_history[axis_index]
-            
+
         return None
 
 
@@ -354,7 +354,7 @@ class MPLWidget(FigureCanvas):
                 self.mpl_connect(
                     "motion_notify_event", self._drag_to_mask_motion)
             )
-        
+
         else:
             # Double click.
 
@@ -386,7 +386,7 @@ class MPLWidget(FigureCanvas):
 
         if event.xdata is None or event.inaxes not in self._drag_to_mask_axes \
         or event.button != 1:
-            return None 
+            return None
 
         signal_time, signal_cid = self._mask_interactive_region_signal
         if time.time() - signal_time > self.__double_click_interval:
@@ -418,9 +418,9 @@ class MPLWidget(FigureCanvas):
 
         except AttributeError:
             return None
-        
+
         xy = list(self._mask_interactive_region.values())[0].get_xy()
-        
+
         xdata = event.xdata if event.xdata is not None else xy[2, 0]
 
         # If the two mouse events were within some time interval,
@@ -428,7 +428,7 @@ class MPLWidget(FigureCanvas):
         # part of a double-click event.
         if  time.time() - signal_time > self.__double_click_interval \
         and np.abs(xy[0,0] - xdata) > 0:
-            
+
             # Update the cache with the new mask.
             limits = [xy[0, 0], xy[2, 0]]
             self.dragged_masks.append([min(limits), max(limits)])
@@ -503,10 +503,10 @@ class MPLWidget(FigureCanvas):
         elif event.key == "space":
             self.space_key_pressed = True
         return None
-        
+
     def key_release_flags(self, event):
         if event.key == "shift":
             self.shift_key_pressed = False
         elif event.key == "space":
             self.space_key_pressed = False
-        return None        
+        return None
